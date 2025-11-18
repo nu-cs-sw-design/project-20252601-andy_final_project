@@ -1,0 +1,461 @@
+@startuml
+
+package domain.game {
+  enum GameType {
+    NONE
+    EXPLODING_KITTENS
+    STREAKING_KITTENS
+    IMPLODING_KITTENS
+  }
+
+  enum CardType {
+    NOPE
+    DEFUSE
+    ATTACK
+    SHUFFLE
+    SKIP
+    SEE_THE_FUTURE
+    CAT_ONE
+    CAT_TWO
+    CAT_THREE
+    CAT_FOUR
+    EXPLODING_KITTEN
+    STREAKING_KITTEN
+    SWAP_TOP_AND_BOTTOM
+    GARBAGE_COLLECTION
+    CURSE_OF_THE_CAT_BUTT
+    ALTER_THE_FUTURE
+    CATOMIC_BOMB
+    SUPER_SKIP
+    MARK
+    IMPLODING_KITTEN
+    REVERSE
+    FERAL_CAT
+    TARGETED_ATTACK
+    DRAW_FROM_THE_BOTTOM
+    - gameType: GameType
+    + CardType(gameType: GameType)
+  }
+
+  class Card {
+    - cardType: CardType
+    - isMarked: boolean
+    - isFacedUp: boolean
+    + Card(cardType: CardType)
+    + getCardType(): CardType
+    + markCard(): void
+    + checkIfMarked(): boolean
+    + setFacedUp(): void
+    + checkIfFacedUp(): boolean
+  }
+
+  class Instantiator {
+    + createCard(cardType: CardType): Card
+    + createRandom(): Random
+    + createCardList(): ArrayList<Card>
+  }
+
+  class Player {
+    - playerID: int
+    - hand: List<Card>
+    - isDead: boolean
+    - rand: Random
+    - isCursed: boolean
+    + Player(playerID: int, instantiator: Instantiator)
+    + getPlayerID(): int
+    + addDefuse(defuse: Card): void
+    + addCardToHand(card: Card): void
+    + hasCard(cardType: CardType): boolean
+    + getHandSize(): int
+    + getCardAt(index: int): Card
+    + getIndexOfCard(cardType: CardType): int
+    + removeCardFromHand(index: int): CardType
+    + shuffleHand(): void
+    + checkNumberOfCardsInHand(cardType: CardType): int
+    + getIsDead(): boolean
+    + setIsDead(): void
+    + getIsCursed(): boolean
+    + setCursed(isCursed: boolean): void
+  }
+
+  class Deck {
+    - deck: List<Card>
+    - rand: Random
+    - gameType: GameType
+    - numberOfPlayers: int
+    - maxDeckSize: int
+    - instantiator: Instantiator
+    + Deck(deck: List<Card>, rand: Random, gameType: GameType, numberOfPlayers: int, maxDeckSize: int, instantiator: Instantiator)
+    + getDeckSize(): int
+    + getCardAtIndex(index: int): Card
+    + initializeDeck(): void
+    + shuffleDeck(): void
+    + insertCard(cardType: CardType, numberOfCards: int, bottom: boolean): void
+    + drawCard(): Card
+    + drawCardFromBottom(): Card
+    + setNumberOfPlayers(numberOfPlayers: int): void
+    + chooseGameType(gameType: GameType): void
+    + removeBombs(): int
+    + insertExplodingKittenAtIndex(indexToInsert: int): void
+    + insertImplodingKittenAtIndex(indexToInsert: int, card: Card): void
+    # getCardTypeAtIndex(index: int): CardType
+    + reorderDeckCards(newOrderIndices: int[], cardsToReorder: List<Card>): void
+  }
+
+  class Game {
+    - numberOfPlayers: int
+    - gameType: GameType
+    - deck: Deck
+    - players: Player[]
+    - rand: Random
+    - currentPlayerTurn: int
+    - currentPlayerNumberOfTurns: int
+    - isReversed: boolean
+    - attackQueue: List<Integer>
+    - attackCounter: int
+    - numberOfAttacks: int
+    - turnTracker: int[]
+    - attacked: boolean
+    + Game(numberOfPlayers: int, gameType: GameType, deck: Deck, players: Player[], rand: Random, attackQueue: List<Integer>, turnTracker: int[])
+    + swapTopAndBottom(): void
+    + stealRandomCard(playerToStealFrom: int): Card
+    + stealTypeCard(cardType: CardType, playerToStealFrom: int): void
+    + startAttackPhase(): void
+    + playAttack(): void
+    + playTargetedAttack(attackedPlayerIndex: int): void
+    + playExplodingKitten(playerIndex: int): boolean
+    + playImplodingKitten(): void
+    + playDefuse(idxToInsertExplodingKitten: int, playerIndex: int): void
+    + drawFromBottom(): Card
+    + playCatomicBomb(): void
+    + setNumberOfPlayers(numberOfPlayers: int): void
+    + playReverse(): void
+    + retrieveGameMode(gameType: GameType): void
+    + selectRandomPlayer(): Player
+    + playShuffle(numberOfShuffles: int): void
+    + playSkip(superSkip: boolean): int
+    + playGarbageCollection(cardToDiscard: CardType): void
+    + getDeck(): Deck
+    + incrementPlayerTurn(): void
+    + incrementAttackCounter(): void
+    + setAttackCounter(playerIndex: int): void
+    + getGameType(): GameType
+    + getPlayerAtIndex(playerIndex: int): Player
+    + addAttacks(): void
+    + playMark(playerIndex: int, cardIndex: int): void
+    + addAttackQueue(attack: int): void
+    + removeAttackQueue(): int
+    + isAttackQueueEmpty(): boolean
+    + setPlayerNumberOfTurns(): void
+    + getPlayerTurn(): int
+    + getNumberOfPlayers(): int
+    + checkNumberOfAlivePlayers(): int
+    + setCurrentPlayerNumberOfTurns(numberOfTurns: int): void
+    + decrementNumberOfTurns(): void
+    + getNumberOfTurns(): int
+    + getDeckSize(): int
+    + drawCard(): Card
+    + getCardAtIndex(cardIndex: int): Card
+    + removeCardFromHand(playerIndex: int, cardType: CardType): void
+    + getIndexOfCardFromHand(playerIndex: int, cardType: CardType): int
+    + addCardToHand(card: Card): void
+    + checkIfPlayerDead(playerIndex: int): boolean
+    + checkIfPlayerHasCard(playerIndex: int, cardType: CardType): boolean
+    + getCardType(playerIndex: int, cardIndex: int): CardType
+    + getHandSize(playerIndex: int): int
+    + getDeckCardType(deckIndex: int): CardType
+    + getIsReversed(): boolean
+    # setCurrentPlayerTurn(turn: int): void
+    + setTurnToTargetedIndexIfAttackOccurred(): void
+    + getTurnCountOfPlayer(playerIndex: int): int
+    + getAttacked(): boolean
+    + getAttackCounter(): int
+    + getNumberOfAttacks(): int
+    ~ setNumberOfAttacks(numberOfAttacks: int): void
+    ~ setAttacked(attacked: boolean): void
+    + playCard(card: PlayableCard, context: GameContext): CardEffect
+    + createGameContext(): GameContext
+  }
+}
+
+package domain.game.cards {
+  interface PlayableCard {
+    + play(context: GameContext): CardEffect
+    + canBeNoped(): boolean
+    + endsTurn(): boolean
+    + validate(context: GameContext): boolean
+    + getCardType(): CardType
+    + getDescription(): String
+  }
+
+  class AttackCard {
+    - cardType: CardType
+    - turnsToAdd: int
+    + AttackCard()
+    + play(context: GameContext): CardEffect
+    + canBeNoped(): boolean
+    + endsTurn(): boolean
+    + validate(context: GameContext): boolean
+    + getCardType(): CardType
+    + getDescription(): String
+    - getNextAlivePlayer(context: GameContext): Player
+    - addTurnsToPlayer(player: Player, turns: int, context: GameContext): void
+  }
+
+  class NopeCard {
+    - cardType: CardType
+    + NopeCard()
+    + play(context: GameContext): CardEffect
+    + canBeNoped(): boolean
+    + endsTurn(): boolean
+    + validate(context: GameContext): boolean
+    + getCardType(): CardType
+    + getDescription(): String
+    + canCounter(targetCard: PlayableCard): boolean
+  }
+
+  class ShuffleCard {
+    - cardType: CardType
+    - defaultShuffleCount: int
+    + ShuffleCard()
+    + play(context: GameContext): CardEffect
+    + canBeNoped(): boolean
+    + endsTurn(): boolean
+    + validate(context: GameContext): boolean
+    + getCardType(): CardType
+    + getDescription(): String
+    + setShuffleCount(count: int): void
+    - performShuffle(deck: Deck, count: int): void
+  }
+
+  class ExplodingKittenCard {
+    - cardType: CardType
+    + ExplodingKittenCard()
+    + play(context: GameContext): CardEffect
+    + canBeNoped(): boolean
+    + endsTurn(): boolean
+    + validate(context: GameContext): boolean
+    + getCardType(): CardType
+    + getDescription(): String
+    - checkForDefuse(player: Player): boolean
+    - handleDefuse(context: GameContext, player: Player): CardEffect
+    - handleDeath(context: GameContext, player: Player): CardEffect
+    - handleCursedDefuse(context: GameContext, player: Player): CardEffect
+    - checkStreakingKitten(player: Player): boolean
+  }
+}
+
+package domain.game.effects {
+  class CardEffect {
+    - success: boolean
+    - message: String
+    - shouldEndTurn: boolean
+    - affectedPlayers: List<Integer>
+    - additionalData: Map<String, Object>
+    + CardEffect(success: boolean, message: String, shouldEndTurn: boolean)
+    + CardEffect(success: boolean, message: String, shouldEndTurn: boolean, affectedPlayers: List<Integer>)
+    + isSuccess(): boolean
+    + getMessage(): String
+    + shouldEndTurn(): boolean
+    + getAffectedPlayers(): List<Integer>
+    + addData(key: String, value: Object): void
+    + getData(key: String): Object
+    + hasData(key: String): boolean
+  }
+}
+
+package domain.game.context {
+  class GameContext {
+    - game: Game
+    - currentPlayer: Player
+    - targetPlayer: Player
+    - deck: Deck
+    - uiHandler: GameUIHandler
+    - additionalParams: Map<String, Object>
+    + GameContext(game: Game, currentPlayer: Player, deck: Deck)
+    + getGame(): Game
+    + getCurrentPlayer(): Player
+    + getTargetPlayer(): Player
+    + setTargetPlayer(player: Player): void
+    + getDeck(): Deck
+    + getUIHandler(): GameUIHandler
+    + setUIHandler(handler: GameUIHandler): void
+    + getNextAlivePlayer(): Player
+    + getAllPlayers(): Player[]
+    + isPlayerAlive(playerIndex: int): boolean
+    + addParameter(key: String, value: Object): void
+    + getParameter(key: String): Object
+    + hasParameter(key: String): boolean
+  }
+
+  interface GameUIHandler {
+    + askForShuffleCount(min: int, max: int): int
+    + askForInsertionIndex(maxIndex: int): int
+    + askForDefuseCardSelection(player: Player): int
+    + displayMessage(message: String): void
+    + confirmAction(prompt: String): boolean
+  }
+}
+
+package domain.game.services {
+  class CardFactory {
+    - {static} instance: CardFactory
+    - cardCreators: Map<CardType, Supplier<PlayableCard>>
+    - CardFactory()
+    + {static} getInstance(): CardFactory
+    + createCard(cardType: CardType): PlayableCard
+    - registerCardCreators(): void
+    + isPlayableCardType(cardType: CardType): boolean
+  }
+
+  class NopeHandler {
+    - game: Game
+    - uiHandler: GameUIHandler
+    + NopeHandler(game: Game, uiHandler: GameUIHandler)
+    + processNopeChain(playedCard: PlayableCard, playingPlayer: Player): boolean
+    + checkPlayersForNope(excludePlayer: Player): boolean
+    - askPlayerToNope(player: Player): boolean
+    - countNopes(responses: List<Boolean>): int
+    + canCardBeNoped(card: PlayableCard): boolean
+  }
+
+  class CardValidator {
+    + {static} validateCardPlay(card: PlayableCard, context: GameContext): boolean
+    + {static} canPlayerPlayCard(player: Player, cardType: CardType): boolean
+    + {static} isCardInHand(player: Player, cardType: CardType): boolean
+    + {static} validatePlayerIndex(playerIndex: int, numberOfPlayers: int): boolean
+    + {static} validateDeckIndex(deckIndex: int, deckSize: int): boolean
+  }
+}
+
+package ui {
+  class GameUI {
+    - game: Game
+    - messages: ResourceBundle
+    - cardFactory: CardFactory
+    - nopeHandler: NopeHandler
+    + GameUI(game: Game)
+    + chooseLanguage(): void
+    + chooseGame(): void
+    + chooseNumberOfPlayers(): void
+    + startTurn(): void
+    + endGame(): void
+    + checkIfGameOver(): boolean
+    - playCardUsingStrategy(cardType: CardType): void
+    - handleCardEffect(effect: CardEffect): void
+  }
+
+  class Main {
+    + {static} main(args: String[]): void
+  }
+
+  class ConsoleUIHandler {
+    - scanner: Scanner
+    - messages: ResourceBundle
+    + ConsoleUIHandler(scanner: Scanner, messages: ResourceBundle)
+    + askForShuffleCount(min: int, max: int): int
+    + askForInsertionIndex(maxIndex: int): int
+    + askForDefuseCardSelection(player: Player): int
+    + displayMessage(message: String): void
+    + confirmAction(prompt: String): boolean
+  }
+}
+
+' Existing relationships from original design
+Card --> CardType
+CardType ..> GameType
+Deck --> GameType
+Deck --> Instantiator
+Deck ..> Card
+Deck ..> Random
+Deck ..> CardType
+Game --> Deck
+Game --> GameType
+Game --> Player
+Game ..> Random
+Game ..> Card
+Game ..> CardType
+Player --> Card
+Player ..> Random
+Player ..> Instantiator
+Player ..> CardType
+GameUI --> Game
+GameUI ..> ResourceBundle
+GameUI ..> Player
+GameUI ..> Card
+GameUI ..> CardType
+GameUI ..> GameType
+Main ..> Game
+Main ..> GameUI
+Main ..> Deck
+Main ..> Player
+Main ..> Instantiator
+Main ..> Card
+Main ..> CardType
+Main ..> GameType
+Main ..> SecureRandom
+Main ..> ArrayList
+Instantiator ..> Card
+Instantiator ..> CardType
+Instantiator ..> Random
+Instantiator ..> ArrayList
+
+' New refactored relationships for card system
+AttackCard ..|> PlayableCard
+NopeCard ..|> PlayableCard
+ShuffleCard ..|> PlayableCard
+ExplodingKittenCard ..|> PlayableCard
+
+PlayableCard ..> CardEffect
+PlayableCard ..> GameContext
+PlayableCard ..> CardType
+
+AttackCard ..> CardType
+AttackCard ..> Player
+NopeCard ..> CardType
+ShuffleCard ..> CardType
+ShuffleCard ..> Deck
+ExplodingKittenCard ..> CardType
+ExplodingKittenCard ..> Player
+
+CardEffect --> List
+CardEffect --> Map
+
+GameContext --> Game
+GameContext --> Player
+GameContext --> Deck
+GameContext --> GameUIHandler
+
+CardFactory ..> PlayableCard
+CardFactory ..> CardType
+CardFactory ..> Supplier
+CardFactory ..> Map
+
+NopeHandler --> Game
+NopeHandler --> GameUIHandler
+NopeHandler ..> PlayableCard
+NopeHandler ..> Player
+
+CardValidator ..> PlayableCard
+CardValidator ..> GameContext
+CardValidator ..> Player
+CardValidator ..> CardType
+
+Game ..> PlayableCard
+Game ..> GameContext
+Game ..> CardEffect
+
+GameUI --> CardFactory
+GameUI --> NopeHandler
+GameUI ..> CardEffect
+GameUI ..> PlayableCard
+GameUI ..> GameContext
+
+ConsoleUIHandler ..|> GameUIHandler
+ConsoleUIHandler ..> Scanner
+ConsoleUIHandler ..> ResourceBundle
+ConsoleUIHandler ..> Player
+
+GameUI --> ConsoleUIHandler
+
+@enduml
