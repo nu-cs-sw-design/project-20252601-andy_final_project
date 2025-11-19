@@ -486,7 +486,27 @@ public class Game {
 		this.numberOfAttacks = numberOfAttacks;
 	}
 
-	void setAttacked(boolean attacked) {
+	public void setAttacked(boolean attacked) {
 		this.attacked = attacked;
+	}
+
+	public domain.game.context.GameContext createGameContext() {
+		return new domain.game.context.GameContext(this, players[currentPlayerTurn], deck);
+	}
+
+	public domain.game.effects.CardEffect playCard(domain.game.cards.PlayableCard card,
+													domain.game.context.GameContext context) {
+		domain.game.effects.CardEffect effect = card.play(context);
+
+		if (effect.shouldEndTurn()) {
+			currentPlayerNumberOfTurns = 0;
+		}
+
+		return effect;
+	}
+
+	public void addTurnsToPlayer(Player player, int turns) {
+		int playerIndex = player.getPlayerID();
+		turnTracker[playerIndex] += turns;
 	}
 }
