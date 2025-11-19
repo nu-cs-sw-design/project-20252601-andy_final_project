@@ -1727,5 +1727,41 @@ public class GameUI {
 	private boolean checkIfGreaterThanMaxIndexDeck(int indexToInsert) {
 		return indexToInsert > game.getDeck().getDeckSize();
 	}
+
+	public void playCardUsingStrategy(CardType cardType, Scanner scanner) {
+		domain.game.services.CardFactory factory = domain.game.services.CardFactory.getInstance();
+
+		if (!factory.isPlayableCardType(cardType)) {
+			System.out.println("This card type is not supported by the new system yet");
+			return;
+		}
+
+		domain.game.cards.PlayableCard card = factory.createCard(cardType);
+		domain.game.context.GameContext context = game.createGameContext();
+
+		ConsoleUIHandler uiHandler = new ConsoleUIHandler(scanner, messages);
+		context.setUIHandler(uiHandler);
+
+		domain.game.services.NopeHandler nopeHandler =
+			new domain.game.services.NopeHandler(game, uiHandler);
+		boolean blocked = nopeHandler.processNopeChain(card, context.getCurrentPlayer());
+
+		if (!blocked && domain.game.services.CardValidator.validateCardPlay(card, context)) {
+			domain.game.effects.CardEffect effect = game.playCard(card, context);
+			handleCardEffect(effect);
+		} else if (blocked) {
+			System.out.println("Card was noped!");
+		} else {
+			System.out.println("Cannot play this card");
+		}
+	}
+
+	private void handleCardEffect(domain.game.effects.CardEffect effect) {
+		if (effect.isSuccess()) {
+			System.out.println(effect.getMessage());
+		} else {
+			System.out.println("Card play failed: " + effect.getMessage());
+		}
+	}
 }
 
