@@ -25,11 +25,12 @@ public class NopeHandler {
 
         int nopeCount = 0;
         boolean continueChecking = true;
+        Player lastPlayerWhoNoped = playingPlayer;
 
         while (continueChecking) {
             continueChecking = false;
 
-            for (Player player : getOtherPlayers(playingPlayer)) {
+            for (Player player : getOtherPlayers(lastPlayerWhoNoped)) {
                 if (player.hasCard(CardType.NOPE) && !player.getIsDead()) {
                     boolean wantsToNope = uiHandler.askToPlayNope(player);
 
@@ -37,6 +38,7 @@ public class NopeHandler {
                         player.removeCardFromHand(player.getIndexOfCard(CardType.NOPE));
                         uiHandler.displayMessage("Player " + player.getPlayerID() + " played Nope!");
                         nopeCount++;
+                        lastPlayerWhoNoped = player;
                         continueChecking = true;
                         break;
                     }
