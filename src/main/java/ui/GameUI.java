@@ -1,6 +1,12 @@
 package ui;
 
 import domain.game.*;
+import domain.game.cards.PlayableCard;
+import domain.game.context.GameContext;
+import domain.game.effects.CardEffect;
+import domain.game.services.CardFactory;
+import domain.game.services.CardValidator;
+import domain.game.services.NopeHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1488,10 +1494,13 @@ public class GameUI {
 					}
 				}
 			} else {
-				player.removeCardFromHand(cardIndex);
+				if (!isCardSupportedByNewSystem(cardType)) {
+					player.removeCardFromHand(cardIndex);
+				}
 			}
 
-			if (checkIfDifferentCardType(cardType, CardType.EXPLODING_KITTEN)
+			if (!isCardSupportedByNewSystem(cardType)
+					&& checkIfDifferentCardType(cardType, CardType.EXPLODING_KITTEN)
 					&& checkIfDifferentCardType(cardType, CardType.DEFUSE)) {
 				if (checkAllPlayersNope()) {
 					continue;
@@ -1508,6 +1517,14 @@ public class GameUI {
 				continue;
 			} else if (specialCombo == threeCats) {
 				playSpecialComboThreeCards(cardType);
+				continue;
+			}
+
+			if (isCardSupportedByNewSystem(cardType)) {
+				playCardUsingNewSystem(cardType);
+				if (cardTypeEndsThePlay(cardType)) {
+					return;
+				}
 				continue;
 			}
 
@@ -1729,25 +1746,28 @@ public class GameUI {
 	}
 
 	public void playCardUsingStrategy(CardType cardType, Scanner scanner) {
-		domain.game.services.CardFactory factory = domain.game.services.CardFactory.getInstance();
+		CardFactory factory = CardFactory.getInstance();
 
 		if (!factory.isPlayableCardType(cardType)) {
 			System.out.println("This card type is not supported by the new system yet");
 			return;
 		}
 
-		domain.game.cards.PlayableCard card = factory.createCard(cardType);
-		domain.game.context.GameContext context = game.createGameContext();
+		PlayableCard card = factory.createCard(cardType);
+		GameContext context = game.createGameContext();
 
 		ConsoleUIHandler uiHandler = new ConsoleUIHandler(scanner, messages);
 		context.setUIHandler(uiHandler);
 
-		domain.game.services.NopeHandler nopeHandler =
-			new domain.game.services.NopeHandler(game, uiHandler);
+		NopeHandler nopeHandler =
+			new NopeHandler(game, uiHandler);
 		boolean blocked = nopeHandler.processNopeChain(card, context.getCurrentPlayer());
 
-		if (!blocked && domain.game.services.CardValidator.validateCardPlay(card, context)) {
-			domain.game.effects.CardEffect effect = game.playCard(card, context);
+		if (!blocked && CardValidator.validateCardPlay(card, context)) {
+			context.getCurrentPlayer().removeCardFromHand(
+				context.getCurrentPlayer().getIndexOfCard(card.getCardType())
+			);
+			CardEffect effect = game.playCard(card, context);
 			handleCardEffect(effect);
 		} else if (blocked) {
 			System.out.println("Card was noped!");
@@ -1756,12 +1776,27 @@ public class GameUI {
 		}
 	}
 
-	private void handleCardEffect(domain.game.effects.CardEffect effect) {
+	private void handleCardEffect(CardEffect effect) {
 		if (effect.isSuccess()) {
 			System.out.println(effect.getMessage());
 		} else {
 			System.out.println("Card play failed: " + effect.getMessage());
 		}
+	}
+
+	private boolean isCardSupportedByNewSystem(CardType cardType) {
+		CardFactory factory = CardFactory.getInstance();
+		return factory.isPlayableCardType(cardType);
+	}
+
+	private void playCardUsingNewSystem(CardType cardType) {
+		Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
+		playCardUsingStrategy(cardType, scanner);
+	}
+
+	private boolean cardTypeEndsThePlay(CardType cardType) {
+		return cardType == CardType.ATTACK ||
+			cardType == CardType.EXPLODING_KITTEN;
 	}
 }
 
