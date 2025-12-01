@@ -36,14 +36,7 @@ After defusing an Exploding Kitten:
 - The card is placed at the exact position specified
 - Invalid positions are rejected
 
-#### 4: Streaking Kitten Special Interaction
-When a player has a Streaking Kitten card:
-- If the player draws an Exploding Kitten and has NO other Exploding Kitten in hand
-- The player may choose to keep the Exploding Kitten in their hand instead of defusing
-- If kept, the Exploding Kitten is added to hand and the player continues their turn
-- If defused normally, standard defuse rules apply
-
-#### 5: Curse Mechanic Integration
+#### 4: Curse Mechanic Integration
 When a cursed player draws an Exploding Kitten:
 - The player's hand is shuffled
 - The player cannot see which card is their Defuse
@@ -52,9 +45,8 @@ When a cursed player draws an Exploding Kitten:
 - Finding the Defuse removes the curse and allows survival
 - Failing to find the Defuse results in death
 
-#### 6: Multiple Exploding Kittens
+#### 5: Multiple Exploding Kittens
 The system must handle:
-- Multiple Exploding Kittens in a player's hand (via Streaking Kitten)
 - Multiple Exploding Kittens in the deck
 - Sequential Exploding Kitten draws
 - Stealing Exploding Kittens between players
@@ -106,17 +98,6 @@ The system must handle:
 8. Player's turn ends
 
 **Outcome**: Player survives if Defuse found, curse removed, guessed cards discarded
-
-#### 4: Streaking Kitten Choice
-**Preconditions**: Player has Streaking Kitten, NO other Exploding Kitten in hand, draws Exploding Kitten
-1. Player draws Exploding Kitten
-2. System detects Streaking Kitten in hand
-3. System offers choice: keep in hand or defuse normally
-4. If keep: Exploding Kitten added to hand, turn continues
-5. If defuse: standard defuse procedure
-6. Player's turn status updated accordingly
-
-**Outcome**: Either Exploding Kitten in hand or back in deck
 
 ---
 
