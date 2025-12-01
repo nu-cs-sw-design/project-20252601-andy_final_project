@@ -3,6 +3,10 @@ package domain.game;
 import java.util.List;
 import java.util.Random;
 
+import domain.game.cards.PlayableCard;
+import domain.game.context.GameContext;
+import domain.game.effects.CardEffect;
+
 public class Game {
 	private int numberOfPlayers;
 	private domain.game.GameType gameType;
@@ -490,13 +494,13 @@ public class Game {
 		this.attacked = attacked;
 	}
 
-	public domain.game.context.GameContext createGameContext() {
-		return new domain.game.context.GameContext(this, players[currentPlayerTurn], deck);
+	public GameContext createGameContext() {
+		return new GameContext(this, players[currentPlayerTurn], deck);
 	}
 
-	public domain.game.effects.CardEffect playCard(domain.game.cards.PlayableCard card,
-													domain.game.context.GameContext context) {
-		domain.game.effects.CardEffect effect = card.play(context);
+	public CardEffect playCard(PlayableCard card,
+							   GameContext context) {
+		CardEffect effect = card.play(context);
 
 		if (effect.shouldEndTurn()) {
 			currentPlayerNumberOfTurns = 0;
