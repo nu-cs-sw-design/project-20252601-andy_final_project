@@ -1,24 +1,16 @@
 # Software Requirements Specification
 ## Exploding Kittens Card Game
 
-### Document Information
-- **Project**: Exploding Kittens Game Implementation
-- **Version**: 1.0
-- **Last Updated**: 2025-11-18
-- **Scope**: Core card mechanics for Exploding Kitten, Nope, Shuffle, and Attack cards
-
----
-
 ## 1. Exploding Kitten Card
 
 ### Overview
 The Exploding Kitten card is the central mechanic of the game. Drawing this card results in immediate player elimination unless countered with a Defuse card.
 
 ### Card Properties
-- **Quantity in Deck**: Variable (dynamically inserted during gameplay)
-- **Game Type**: Base game (EXPLODING_KITTENS)
+- **Quantity in Deck**: Variable
+- **Game Type**: EXPLODING_KITTENS
 - **Can Be Played Voluntarily**: No
-- **Ends Turn**: Yes (always)
+- **Ends Turn**: Yes
 - **Can Be Noped**: No
 
 ### Functional Requirements
@@ -39,7 +31,7 @@ If a player has a Defuse card when drawing an Exploding Kitten:
 
 #### 3: Card Reinsertion
 After defusing an Exploding Kitten:
-- The player chooses a position to insert the card (index 0 to deck size)
+- The player chooses a position to insert the card
 - The insertion position is kept secret from other players
 - The card is placed at the exact position specified
 - Invalid positions are rejected
@@ -67,7 +59,7 @@ The system must handle:
 - Sequential Exploding Kitten draws
 - Stealing Exploding Kittens between players
 
-### 1.4 Business Logic
+### Business Logic
 
 1. **Instant Effect**: Drawing an Exploding Kitten triggers immediate resolution
 2. **No Voluntary Play**: Players cannot play this card from their hand
@@ -80,7 +72,6 @@ The system must handle:
 
 #### 1: Standard Defuse
 **Preconditions**: Player has Defuse card in hand, draws Exploding Kitten
-**Flow**:
 1. Player draws Exploding Kitten from deck
 2. System checks if player has Defuse card
 3. System prompts player to choose insertion position (0 to deck size)
@@ -93,7 +84,6 @@ The system must handle:
 
 #### 2: Player Elimination
 **Preconditions**: Player has NO Defuse card, draws Exploding Kitten
-**Flow**:
 1. Player draws Exploding Kitten from deck
 2. System checks if player has Defuse card
 3. No Defuse found
@@ -106,7 +96,6 @@ The system must handle:
 
 #### 3: Cursed Player Defuse
 **Preconditions**: Cursed player has Defuse card, draws Exploding Kitten
-**Flow**:
 1. Player draws Exploding Kitten
 2. System shuffles player's hand
 3. System presents shuffled cards without revealing types
@@ -120,7 +109,6 @@ The system must handle:
 
 #### 4: Streaking Kitten Choice
 **Preconditions**: Player has Streaking Kitten, NO other Exploding Kitten in hand, draws Exploding Kitten
-**Flow**:
 1. Player draws Exploding Kitten
 2. System detects Streaking Kitten in hand
 3. System offers choice: keep in hand or defuse normally
@@ -135,14 +123,13 @@ The system must handle:
 ## 2. Nope Card
 
 ### Overview
-The Nope card is a counter card that can negate the effect of almost any action card played by any player. It creates strategic depth through chain reactions.
-
+The Nope card is a counter card that can negate the effect of almost any action card played by any player.
 ### Card Properties
 - **Quantity in Deck**: 4
-- **Game Type**: Base game (EXPLODING_KITTENS)
-- **Can Be Played Voluntarily**: Yes (in response to other cards)
+- **Game Type**: EXPLODING_KITTENS
+- **Can Be Played Voluntarily**: Yes
 - **Ends Turn**: No
-- **Can Be Noped**: Yes (Nope can be Noped)
+- **Can Be Noped**: Yes
 
 ### Functional Requirements
 
@@ -207,7 +194,6 @@ The final resolution follows:
 
 #### 1: Simple Nope
 **Preconditions**: Player A plays Attack, Player B has Nope card
-**Flow**:
 1. Player A plays Attack card
 2. System asks all other players if they want to Nope
 3. Player B chooses to play Nope
@@ -221,7 +207,6 @@ The final resolution follows:
 
 #### 2: Nope Chain War
 **Preconditions**: Multiple players have Nope cards, Player A plays Shuffle
-**Flow**:
 1. Player A plays Shuffle card
 2. Player B plays Nope (blocks Shuffle)
 3. Player C plays Nope (blocks Player B's Nope, allowing Shuffle)
@@ -235,7 +220,6 @@ The final resolution follows:
 
 #### 3: Declined Nope Opportunity
 **Preconditions**: Player A attacks Player B, Player C has Nope
-**Flow**:
 1. Player A plays Attack targeting next player (Player B)
 2. System asks all other players for Nope
 3. Player C has Nope but declines to play it
@@ -250,11 +234,11 @@ The final resolution follows:
 ## 3. Shuffle Card
 
 ### Overview
-The Shuffle card randomizes the draw pile, disrupting opponent strategies and protecting against known card positions.
+The Shuffle card randomizes the draw pile.
 
 ### Card Properties
 - **Quantity in Deck**: 4
-- **Game Type**: Base game (EXPLODING_KITTENS)
+- **Game Type**: EXPLODING_KITTENS
 - **Can Be Played Voluntarily**: Yes
 - **Ends Turn**: No
 - **Can Be Noped**: Yes
@@ -270,7 +254,7 @@ When a Shuffle card is played:
 
 #### 2: Multiple Shuffle Option
 The player playing Shuffle must specify:
-- Number of times to shuffle (minimum: 1)
+- Number of times to shuffle (minimum of 1)
 - Maximum shuffles allowed: 100
 - Each shuffle completely randomizes the deck
 - Invalid input prompts re-entry
@@ -303,14 +287,11 @@ The system must validate:
 3. **Turn Preservation**: Playing Shuffle does not end turn
 4. **Can Be Countered**: Nope cards can prevent Shuffle
 5. **Wasted on Nope**: If Noped, Shuffle is discarded with no effect
-6. **Timing Matters**: Best played before drawing to randomize dangerous positions
-7. **Maximum Limit**: 100-shuffle cap prevents abuse and delays
 
 ### Use Cases
 
 #### 1: Disrupting See the Future
 **Preconditions**: Opponent played See the Future, player has Shuffle
-**Flow**:
 1. Opponent A plays See the Future and sees Exploding Kitten on top
 2. Player B plays Shuffle on their turn
 3. Player B chooses to shuffle 3 times
@@ -319,11 +300,10 @@ The system must validate:
 6. Opponent A's knowledge is now invalid
 7. Player B continues turn
 
-**Outcome**: Deck randomized, opponent's knowledge invalidated, turn continues
+**Outcome**: Deck randomized, turn continues
 
 #### 2: Safety Shuffle
 **Preconditions**: Player suspects Exploding Kitten near top, has Shuffle
-**Flow**:
 1. Player plays Shuffle card
 2. Player chooses to shuffle 1 time
 3. No other players play Nope
@@ -332,11 +312,10 @@ The system must validate:
 6. Player continues turn
 7. Player draws at end of turn from randomized deck
 
-**Outcome**: Deck randomized, draw risk redistributed
+**Outcome**: Deck randomized, draw risk redistributed, turn continues
 
 #### 3: Over-Shuffle Prevention
 **Preconditions**: Player attempts to shuffle more than 100 times
-**Flow**:
 1. Player plays Shuffle card
 2. Player enters 150 for number of shuffles
 3. System displays maximum shuffle error message
@@ -345,20 +324,20 @@ The system must validate:
 6. Deck is shuffled 5 times
 7. Turn continues
 
-**Outcome**: Deck shuffled 5 times, invalid input handled
+**Outcome**: Deck shuffled 5 times, invalid input handled, turn continues
 
 ---
 
 ## 4. Attack Card
 
 ### Overview
-The Attack card forces the next player to take 2 consecutive turns without the current player drawing. It enables attack chaining and complex turn manipulation.
+The Attack card forces the next player to take 2 consecutive turns without the current player drawing.
 
 ### Card Properties
 - **Quantity in Deck**: 3
-- **Game Type**: Base game (EXPLODING_KITTENS)
+- **Game Type**: EXPLODING_KITTENS
 - **Can Be Played Voluntarily**: Yes
-- **Ends Turn**: Yes (immediately)
+- **Ends Turn**: Yes
 - **Can Be Noped**: Yes
 
 ### Functional Requirements
@@ -379,7 +358,7 @@ Players can chain attacks:
 
 #### 3: Targeted Attack Variant
 Targeted Attack allows:
-- Specifying which player to attack (not just next player)
+- Specifying which player to attack
 - Same 2-turn penalty applies
 - Target must be an alive player
 - Cannot target self
@@ -388,7 +367,6 @@ Targeted Attack allows:
 The system maintains an attack queue:
 - Normal attacks stored as value 5
 - Targeted attacks stored as target player index (0-4)
-- Queue processed in FIFO (First In, First Out) order
 - All queued attacks resolved before target's first turn
 
 #### 5: Turn Tracking Persistence
@@ -423,7 +401,7 @@ During attack chains:
 
 1. **Immediate Turn End**: Playing Attack ends turn without drawing
 2. **Turn Addition**: Each Attack adds exactly 2 turns
-3. **Chain Multiplication**: Chains multiply turns (2, 4, 6, 8, etc.)
+3. **Attack Chains**: Attacks can be chained to increase the number of turns (2, 4, 6, 8, etc.)
 4. **Next Player Target**: Normal Attack targets next alive player in order
 5. **Dead Player Skip**: Attack rotation skips eliminated players
 6. **Cannot Self-Attack**: Players cannot target themselves
@@ -436,7 +414,6 @@ During attack chains:
 
 #### 1: Simple Attack
 **Preconditions**: Player A has Attack card, Player B is next
-**Flow**:
 1. Player A plays Attack card
 2. No other players play Nope
 3. System adds 2 turns to Player B's turn count
@@ -449,7 +426,6 @@ During attack chains:
 
 #### 2: Attack Chain
 **Preconditions**: Player A attacks Player B, Player B has Attack, Player C is next
-**Flow**:
 1. Player A plays Attack targeting Player B
 2. System prompts Player B to play Attack (if they have it)
 3. Player B chooses to play Attack
@@ -463,7 +439,6 @@ During attack chains:
 
 #### 3: Targeted Attack
 **Preconditions**: Player A has Targeted Attack, wants to attack Player C
-**Flow**:
 1. Player A plays Targeted Attack card
 2. System prompts for target player selection
 3. Player A selects Player C (index 2)
@@ -477,7 +452,6 @@ During attack chains:
 
 #### 4: Noped Attack in Chain
 **Preconditions**: Player A attacks Player B, Player B attacks Player C, Player D has Nope
-**Flow**:
 1. Player A plays Attack targeting Player B
 2. Player B plays Attack targeting Player C
 3. Player D plays Nope on Player B's Attack
@@ -490,7 +464,6 @@ During attack chains:
 
 #### 5: Attack Mitigation with Skip
 **Preconditions**: Player A attacks Player B, Player B has 2 Skip cards
-**Flow**:
 1. Player A plays Attack
 2. Player B receives 2 turns
 3. On Player B's first turn, they play Skip
