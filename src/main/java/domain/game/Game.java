@@ -489,4 +489,14 @@ public class Game {
 	void setAttacked(boolean attacked) {
 		this.attacked = attacked;
 	}
+
+	public List<Card> getTopCards(int count) {
+		int deckSize = deck.getDeckSize();
+		int cardsToReveal = Math.min(count, deckSize);
+		List<Card> topCards = new java.util.ArrayList<>();
+		for (int i = 0; i < cardsToReveal; i++) {
+			topCards.add(deck.getCardAtIndex(deckSize - 1 - i));
+		}
+		return topCards;
+	}
 }
