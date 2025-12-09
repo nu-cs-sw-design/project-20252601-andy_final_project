@@ -1,0 +1,138 @@
+@startuml
+
+package ui {
+    class GameUI {
+        - game: Game
+        - messages: ResourceBundle
+        + GameUI(game: Game)
+        + chooseLanguage(): void
+        + chooseGame(): void
+        + chooseNumberOfPlayers(): void
+        + getExplodingKittenInsertionIndex(maxIndex: int): int
+        + getShuffleCount(maxShuffles: int): int
+        + getInputInteger(): int
+        + askPlayerToPlayNope(playerIndex: int): boolean
+        + showFutureCards(cards: List<Card>): void
+        + displayMessage(messageKey: String, args: Object...): void
+    }
+}
+
+package domain.game {
+    interface InputProvider {
+        + getExplodingKittenInsertionIndex(maxIndex: int): int
+        + getShuffleCount(maxShuffles: int): int
+        + getInputInteger(): int
+        + askPlayerToPlayNope(playerIndex: int): boolean
+        + showFutureCards(cards: List<Card>): void
+        + displayMessage(messageKey: String, args: Object...): void
+    }
+
+    class Game {
+        - numberOfPlayers: int
+        - gameType: GameType
+        - deck: Deck
+        - players: Player[]
+        - rand: Random
+        - currentPlayerTurn: int
+        + Game(numberOfPlayers: int, gameType: GameType, deck: Deck, players: Player[], rand: Random, attackQueue: ArrayList<Integer>, turnTracker: int[])
+        + getDeckSize(): int
+        + getPlayerAtIndex(playerIndex: int): Player
+        + getPlayerTurn(): int
+        + getNumberOfPlayers(): int
+        + checkIfPlayerHasCard(playerIndex: int, cardType: CardType): boolean
+        + playShuffle(numberOfShuffles: int): void
+        + playDefuse(idxToInsertExplodingKitten: int, playerIndex: int): void
+        + getTopCards(count: int): List<Card>
+        + removeCardFromHand(playerIndex: int, cardType: CardType): void
+        + setCurrentPlayerNumberOfTurns(numberOfTurns: int): void
+        + getGameType(): GameType
+    }
+
+    class Player {
+        - playerID: int
+        - hand: List<Card>
+        - isDead: boolean
+        - rand: Random
+        - isCursed: boolean
+        + Player(playerID: int, instantiator: Instantiator)
+        + getPlayerID(): int
+        + hasCard(cardType: CardType): boolean
+        + getHandSize(): int
+        + getCardAt(index: int): Card
+        + getIndexOfCard(cardType: CardType): int
+        + removeCardFromHand(index: int): CardType
+        + getIsDead(): boolean
+        + setIsDead(): void
+        + getIsCursed(): boolean
+        + setCursed(isCursed: boolean): void
+    }
+
+    class Deck {
+        - deck: List<Card>
+        - rand: Random
+        - gameType: GameType
+        - numberOfPlayers: int
+        - maxDeckSize: int
+        - instantiator: Instantiator
+        + Deck(deck: List<Card>, rand: Random, gameType: GameType, numberOfPlayers: int, maxDeckSize: int, instantiator: Instantiator)
+        + getDeckSize(): int
+        + getCardAtIndex(index: int): Card
+        + shuffleDeck(): void
+        + insertExplodingKittenAtIndex(indexToInsert: int): void
+    }
+
+    class Card {
+        - cardType: CardType
+        - isMarked: boolean
+        - isFacedUp: boolean
+        + Card(cardType: CardType)
+        + getCardType(): CardType
+    }
+}
+
+package domain.game.actions {
+    interface CardAction {
+        + {abstract} execute(game: Game, player: Player, input: InputProvider): void
+    }
+
+    abstract class BaseCardAction {
+        # checkNope(game: Game, input: InputProvider): boolean
+        - checkAllPlayersForNope(game: Game, input: InputProvider, originalPlayerIndex: int): boolean
+    }
+
+    class ExplodingKittenAction {
+        + execute(game: Game, player: Player, input: InputProvider): void
+        - handleCursedDefuse(game: Game, player: Player, input: InputProvider): boolean
+    }
+
+    class NopeAction {
+        + execute(game: Game, player: Player, input: InputProvider): void
+    }
+
+    class ShuffleAction {
+        + execute(game: Game, player: Player, input: InputProvider): void
+    }
+
+    class SeeTheFutureAction {
+        + execute(game: Game, player: Player, input: InputProvider): void
+    }
+}
+
+GameUI ..|> InputProvider
+BaseCardAction ..|> CardAction
+ExplodingKittenAction ..|> CardAction
+NopeAction ..|> CardAction
+ShuffleAction --|> BaseCardAction
+SeeTheFutureAction --|> BaseCardAction
+
+GameUI --> Game
+Game --> Deck
+Game --> Player
+Player --> Card
+Deck --> Card
+
+CardAction ..> Game
+CardAction ..> Player
+CardAction ..> InputProvider
+
+@enduml
