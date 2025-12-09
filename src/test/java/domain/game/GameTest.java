@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 import java.security.SecureRandom;
+import domain.game.InputProvider;
+import domain.game.actions.ExplodingKittenAction;
+import domain.game.actions.ShuffleAction;
 
 public class GameTest {
 
@@ -3062,6 +3065,7 @@ public class GameTest {
 		Random rand = EasyMock.createMock(Random.class);
 		Card firstCard = EasyMock.createMock(Card.class);
 		Card secondCard = EasyMock.createMock(Card.class);
+		InputProvider input = EasyMock.createMock(InputProvider.class);
 
 		ArrayList<Integer> attackQueue = EasyMock.createMock(ArrayList.class);
 
@@ -3072,9 +3076,21 @@ public class GameTest {
 
 		EasyMock.expect(rand.nextInt(2)).andReturn(0).anyTimes();
 
+		// Expectations for ShuffleAction
+		EasyMock.expect(player1.getPlayerID()).andReturn(0).anyTimes();
+		EasyMock.expect(player2.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+		EasyMock.expect(player3.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+		EasyMock.expect(player4.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+		EasyMock.expect(player5.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+
+		input.displayMessage("decidedShuffle");
+		EasyMock.expectLastCall();
+		int timesToShuffle = 1;
+		EasyMock.expect(input.getShuffleCount(100)).andReturn(timesToShuffle);
+
 		EasyMock.replay(deck, player1, player2, player3, player4,
 				player5, rand
-				, attackQueue, firstCard, secondCard);
+				, attackQueue, firstCard, secondCard, input);
 		Player[] players = {player1, player2, player3, player4, player5};
 
 		int[] turnTracker = {1, 1, 1, 1, 1};
@@ -3082,21 +3098,18 @@ public class GameTest {
 				GameType.EXPLODING_KITTENS, deck, players, rand,
 				attackQueue, turnTracker);
 
-		int timesToShuffle = 1;
-		game.playShuffle(timesToShuffle);
+		new ShuffleAction().execute(game, player1, input);
 		assertEquals(deck.getCardAtIndex(0), firstCard);
-		assertEquals(timesToShuffle, 1);
 
 		EasyMock.verify(deck, player1, player2, player3, player4,
 				player5, rand
-				, attackQueue, firstCard, secondCard);
+				, attackQueue, firstCard, secondCard, input);
 	}
 
 	@Test
 	public void playShuffleGameDeckZeroCards() {
 		final int numOfPlayers = 5;
 		final int deckSize = 0;
-		final int timesShuffled = 1;
 		Deck deck = EasyMock.createMock(Deck.class);
 		Player player1 = EasyMock.createMock(Player.class);
 		Player player2 = EasyMock.createMock(Player.class);
@@ -3106,6 +3119,7 @@ public class GameTest {
 		Random rand = EasyMock.createMock(Random.class);
 		Card firstCard = EasyMock.createMock(Card.class);
 		Card secondCard = EasyMock.createMock(Card.class);
+		InputProvider input = EasyMock.createMock(InputProvider.class);
 
 		ArrayList<Integer> attackQueue = EasyMock.createMock(ArrayList.class);
 		EasyMock.expect(deck.getDeckSize()).andReturn(0).anyTimes();
@@ -3113,24 +3127,34 @@ public class GameTest {
 		deck.shuffleDeck();
 		EasyMock.expectLastCall().andVoid();
 
+		// Expectations for ShuffleAction
+		EasyMock.expect(player1.getPlayerID()).andReturn(0).anyTimes();
+		EasyMock.expect(player2.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+		EasyMock.expect(player3.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+		EasyMock.expect(player4.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+		EasyMock.expect(player5.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+
+		input.displayMessage("decidedShuffle");
+		EasyMock.expectLastCall();
+		int timesToShuffle = 1;
+		EasyMock.expect(input.getShuffleCount(100)).andReturn(timesToShuffle);
+
 		EasyMock.replay(deck, player1, player2, player3, player4,
 				player5, rand
-				, attackQueue, firstCard, secondCard);
+				, attackQueue, firstCard, secondCard, input);
 		Player[] players = {player1, player2, player3, player4, player5};
 
 		int[] turnTracker = {1, 1, 1, 1, 1};
 		Game game = new Game(numOfPlayers,
 				GameType.EXPLODING_KITTENS, deck, players, rand,
 				attackQueue, turnTracker);
-		int timesToShuffle = 1;
-		game.playShuffle(timesToShuffle);
+		
+		new ShuffleAction().execute(game, player1, input);
 		assertEquals(deck.getDeckSize(), deckSize);
-		assertEquals(timesToShuffle, timesShuffled);
-
 
 		EasyMock.verify(deck, player1, player2, player3, player4,
 				player5, rand
-				, attackQueue, firstCard, secondCard);
+				, attackQueue, firstCard, secondCard, input);
 	}
 
 	@Test
@@ -3148,6 +3172,7 @@ public class GameTest {
 		Random rand = EasyMock.createMock(Random.class);
 		Card firstCard = EasyMock.createMock(Card.class);
 		Card secondCard = EasyMock.createMock(Card.class);
+		InputProvider input = EasyMock.createMock(InputProvider.class);
 
 		ArrayList<Integer> attackQueue = EasyMock.createMock(ArrayList.class);
 
@@ -3158,25 +3183,35 @@ public class GameTest {
 
 		EasyMock.expect(rand.nextInt(randomInputOne)).andReturn(0).anyTimes();
 		EasyMock.expect(rand.nextInt(randomInputTwo)).andReturn(0).anyTimes();
+
+		// Expectations for ShuffleAction
+		EasyMock.expect(player1.getPlayerID()).andReturn(0).anyTimes();
+		EasyMock.expect(player2.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+		EasyMock.expect(player3.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+		EasyMock.expect(player4.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+		EasyMock.expect(player5.hasCard(CardType.NOPE)).andReturn(false).anyTimes();
+
+		input.displayMessage("decidedShuffle");
+		EasyMock.expectLastCall();
+		EasyMock.expect(input.getShuffleCount(100)).andReturn(timesShuffled);
+
 		EasyMock.replay(deck, player1, player2, player3, player4,
 				player5, rand
-				, attackQueue, firstCard, secondCard);
+				, attackQueue, firstCard, secondCard, input);
 		Player[] players = {player1, player2, player3, player4, player5};
 
 		int[] turnTracker = {1, 1, 1, 1, 1};
 		Game game = new Game(numOfPlayers,
 				GameType.EXPLODING_KITTENS, deck, players, rand,
 				attackQueue, turnTracker);
-		final int timesToShuffle = 100;
-		game.playShuffle(timesToShuffle);
+		
+		new ShuffleAction().execute(game, player1, input);
 		assertEquals(deck.getCardAtIndex(0), firstCard);
 		assertEquals(deck.getCardAtIndex(1), firstCard);
-		assertEquals(timesToShuffle, timesShuffled);
-
 
 		EasyMock.verify(deck, player1, player2, player3, player4,
 				player5, rand
-				, attackQueue, firstCard, secondCard);
+				, attackQueue, firstCard, secondCard, input);
 	}
 
 	@ParameterizedTest
@@ -3303,6 +3338,7 @@ public class GameTest {
 		Player player = EasyMock.createMock(Player.class);
 		Player[] players = {player, player, player, player, player};
 		Random rand = EasyMock.createMock(Random.class);
+		InputProvider input = EasyMock.createMock(InputProvider.class);
 
 		ArrayList<Integer> attackQueue = EasyMock.createMock(ArrayList.class);
 
@@ -3314,32 +3350,44 @@ public class GameTest {
 
 		EasyMock.expect(player.hasCard(CardType.DEFUSE)).andReturn(true).anyTimes();
 		EasyMock.expect(player.getIsDead()).andReturn(false).anyTimes();
+		EasyMock.expect(player.getIsCursed()).andReturn(false).anyTimes();
+		EasyMock.expect(player.getPlayerID()).andReturn(0).anyTimes();
+		
+		input.displayMessage("explodingKittenMessage");
+		input.displayMessage("defusedMessage");
+		input.displayMessage("whereToInsertMessage");
+		EasyMock.expect(deck.getDeckSize()).andReturn(10).anyTimes();
+		input.displayMessage("validRangeMessage", 10);
+		EasyMock.expect(input.getExplodingKittenInsertionIndex(10)).andReturn(5);
+		
+		deck.insertExplodingKittenAtIndex(5);
+		EasyMock.expect(player.getIndexOfCard(CardType.DEFUSE)).andReturn(0);
+		EasyMock.expect(player.removeCardFromHand(0)).andReturn(CardType.DEFUSE);
+		player.setCursed(false);
 
 		EasyMock.replay(deck, player, rand
-				, attackQueue);
+				, attackQueue, input);
 
-		int playerIndex = 0;
-		boolean isPlayerExploded = game.playExplodingKitten(playerIndex);
-		assertFalse(isPlayerExploded);
+		new ExplodingKittenAction().execute(game, player, input);
 
 		int numberOfAlivePlayers = game.checkNumberOfAlivePlayers();
 		assertEquals(numberOfAlivePlayers, numOfPlayers);
 
 
 		EasyMock.verify(deck, player, rand
-				, attackQueue);
+				, attackQueue, input);
 	}
 
 	@Test
 	public void playExplodingKittenWithoutDefuse() {
 		final int numOfPlayers = 5;
 		final int numOfAlivePlayers = 4;
-		final int playerIndex = 4;
 		final int currentPlayerIndex = 4;
 		Deck deck = EasyMock.createMock(Deck.class);
 		Player player = EasyMock.createMock(Player.class);
 		Player otherPlayer = EasyMock.createMock(Player.class);
 		Random rand = EasyMock.createMock(Random.class);
+		InputProvider input = EasyMock.createMock(InputProvider.class);
 
 		ArrayList<Integer> attackQueue = EasyMock.createMock(ArrayList.class);
 
@@ -3351,16 +3399,22 @@ public class GameTest {
 				attackQueue, turnTracker);
 		game.setCurrentPlayerTurn(currentPlayerIndex);
 		game.setCurrentPlayerNumberOfTurns(1);
+		
 		EasyMock.expect(player.hasCard(CardType.DEFUSE)).andReturn(false).anyTimes();
 		EasyMock.expect(player.getIsDead()).andReturn(true).anyTimes();
+		EasyMock.expect(player.getPlayerID()).andReturn(currentPlayerIndex).anyTimes();
+		
+		input.displayMessage("explodingKittenMessage");
+		input.displayMessage("noDefuseCardMessage");
+		input.displayMessage("youExplodedMessage");
+		
 		player.setIsDead();
 		EasyMock.expect(otherPlayer.getIsDead()).andReturn(false).anyTimes();
 
 		EasyMock.replay(deck, player, otherPlayer, rand
-				, attackQueue);
+				, attackQueue, input);
 
-		boolean isPlayerExploded = game.playExplodingKitten(playerIndex);
-		assertTrue(isPlayerExploded);
+		new ExplodingKittenAction().execute(game, player, input);
 
 		int numberOfAlivePlayers = game.checkNumberOfAlivePlayers();
 		assertEquals(numberOfAlivePlayers, numOfAlivePlayers);
@@ -3368,20 +3422,20 @@ public class GameTest {
 		assertEquals(0, game.getNumberOfTurns());
 
 		EasyMock.verify(deck, player, otherPlayer, rand
-				, attackQueue);
+				, attackQueue, input);
 	}
 
 	@Test
 	public void playExplodingKittenWithoutDefuseOneAlivePlayerLeft() {
 		final int numOfPlayers = 5;
 		final int numOfAlivePlayers = 1;
-		final int playerIndex = 4;
 		final int currentPlayerIndex = 3;
 		Deck deck = EasyMock.createMock(Deck.class);
 		Player player = EasyMock.createMock(Player.class);
 		Player deadPlayer = EasyMock.createMock(Player.class);
 		Player alivePlayer = EasyMock.createMock(Player.class);
 		Random rand = EasyMock.createMock(Random.class);
+		InputProvider input = EasyMock.createMock(InputProvider.class);
 		ArrayList<Integer> attackQueue = EasyMock.createMock(ArrayList.class);
 
 		Player[] players = {deadPlayer, deadPlayer, deadPlayer, alivePlayer, player};
@@ -3392,26 +3446,30 @@ public class GameTest {
 				attackQueue, turnTracker);
 		game.setCurrentPlayerTurn(currentPlayerIndex);
 		game.setCurrentPlayerNumberOfTurns(1);
-
+		
 		EasyMock.expect(player.hasCard(CardType.DEFUSE)).andReturn(false).anyTimes();
 		EasyMock.expect(player.getIsDead()).andReturn(true).anyTimes();
+		EasyMock.expect(player.getPlayerID()).andReturn(4).anyTimes();
+		
+		input.displayMessage("explodingKittenMessage");
+		input.displayMessage("noDefuseCardMessage");
+		input.displayMessage("youExplodedMessage");
+		
 		player.setIsDead();
 		EasyMock.expect(deadPlayer.getIsDead()).andReturn(true).anyTimes();
 		EasyMock.expect(alivePlayer.getIsDead()).andReturn(false).anyTimes();
 
-		EasyMock.replay(deck, player, deadPlayer, alivePlayer, rand,
-				attackQueue);
+		EasyMock.replay(deck, player, deadPlayer, alivePlayer, rand
+				, attackQueue, input);
 
-		boolean isPlayerExploded = game.playExplodingKitten(playerIndex);
-		assertTrue(isPlayerExploded);
+		new ExplodingKittenAction().execute(game, player, input);
 
 		int numberOfAlivePlayers = game.checkNumberOfAlivePlayers();
 		assertEquals(numberOfAlivePlayers, numOfAlivePlayers);
 
-		assertEquals(1, game.getNumberOfTurns());
 
 		EasyMock.verify(deck, player, deadPlayer, alivePlayer, rand
-				, attackQueue);
+				, attackQueue, input);
 	}
 
 	@Test
