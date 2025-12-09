@@ -3312,7 +3312,8 @@ public class GameTest {
 		Player[] players = {};
 
 		Random rand = EasyMock.createMock(Random.class);
-		EasyMock.replay(deck, rand);
+		InputProvider input = EasyMock.createMock(InputProvider.class);
+		EasyMock.replay(deck, rand, input);
 
 
 		int[] turnTracker = {1, 1, 1, 1, 1};
@@ -3321,14 +3322,12 @@ public class GameTest {
 				attackQueue, turnTracker);
 
 
-		Exception exception = assertThrows(UnsupportedOperationException.class, () -> {
-			game.playExplodingKitten(playerIndex);
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			Player player = game.getPlayerAtIndex(playerIndex);
+			new ExplodingKittenAction().execute(game, player, input);
 		});
-		String actualMessage = exception.getMessage();
-		String expectedMessage = "Invalid player index.";
-		assertEquals(expectedMessage, actualMessage);
 
-		EasyMock.verify(deck, rand);
+		EasyMock.verify(deck, rand, input);
 	}
 
 	@Test
@@ -3372,7 +3371,6 @@ public class GameTest {
 
 		int numberOfAlivePlayers = game.checkNumberOfAlivePlayers();
 		assertEquals(numberOfAlivePlayers, numOfPlayers);
-
 
 		EasyMock.verify(deck, player, rand
 				, attackQueue, input);
