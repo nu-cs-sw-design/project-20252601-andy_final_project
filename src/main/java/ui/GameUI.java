@@ -1,6 +1,10 @@
 package ui;
 
 import domain.game.*;
+import domain.game.actions.ExplodingKittenAction;
+import domain.game.actions.NopeAction;
+import domain.game.actions.SeeTheFutureAction;
+import domain.game.actions.ShuffleAction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -333,7 +337,8 @@ public class GameUI implements domain.game.InputProvider {
 							i, CardType.EXPLODING_KITTEN);
 
 					player.removeCardFromHand(explodingKittenIdx);
-					if (!playExplodingKitten(i)) {
+					new ExplodingKittenAction().execute(game, game.getPlayerAtIndex(i), this);
+					if (game.getPlayerAtIndex(i).getIsDead()) {
 						continue;
 					}
 				}
@@ -547,7 +552,7 @@ public class GameUI implements domain.game.InputProvider {
 					String userInput = scanner.nextLine();
 					switch (userInput) {
 						case "1":
-							playNope(playerCounter);
+							new NopeAction().execute(game, game.getPlayerAtIndex(playerCounter), this);
 							return !checkAllPlayersForNope
 									(playerCounter);
 						case "2":
@@ -567,11 +572,6 @@ public class GameUI implements domain.game.InputProvider {
 			}
 		}
 		return false;
-	}
-
-	private boolean playExplodingKitten(int playerIndex) {
-		new domain.game.actions.ExplodingKittenAction().execute(game, game.getPlayerAtIndex(playerIndex), this);
-		return !game.getPlayerAtIndex(playerIndex).getIsDead();
 	}
 
 	private boolean endTurn() {
@@ -610,7 +610,8 @@ public class GameUI implements domain.game.InputProvider {
 					}
 				}
 			}
-			return playExplodingKitten(currentPlayerIdx);
+			new ExplodingKittenAction().execute(game, game.getPlayerAtIndex(currentPlayerIdx), this);
+			return !game.getPlayerAtIndex(currentPlayerIdx).getIsDead();
 		} else if (checkMatchingCardType(cardDrawn.getCardType(),
 				CardType.IMPLODING_KITTEN)) {
 			return playImplodingKitten(cardDrawn);
@@ -762,7 +763,7 @@ public class GameUI implements domain.game.InputProvider {
 						, CardType.EXPLODING_KITTEN);
 						game.getPlayerAtIndex(game.getPlayerTurn())
 						.removeCardFromHand(explodingKittenIndex);
-						playExplodingKitten(game.getPlayerTurn());
+						new ExplodingKittenAction().execute(game, game.getPlayerAtIndex(game.getPlayerTurn()), this);
 						}
 					} catch (NumberFormatException e) {
 						System.out.println(invalidNumber);
@@ -774,7 +775,7 @@ public class GameUI implements domain.game.InputProvider {
 						, CardType.EXPLODING_KITTEN);
 					game.getPlayerAtIndex(game.getPlayerTurn())
 							.removeCardFromHand(explodingKittenIndex);
-					playExplodingKitten(game.getPlayerTurn());
+					new ExplodingKittenAction().execute(game, game.getPlayerAtIndex(game.getPlayerTurn()), this);
 				}
 
 			} else if (checkMatchingCardType(stealedCard.getCardType(),
@@ -784,7 +785,7 @@ public class GameUI implements domain.game.InputProvider {
 						, CardType.EXPLODING_KITTEN);
 				game.getPlayerAtIndex(playerIndex).
 						removeCardFromHand(explodingKittenIndex);
-				playExplodingKitten(playerIndex);
+				new ExplodingKittenAction().execute(game, game.getPlayerAtIndex(playerIndex), this);
 			}
 		} catch (IllegalArgumentException e) {
 			System.out.println(playerNoCardsToSteal);
@@ -990,13 +991,9 @@ public class GameUI implements domain.game.InputProvider {
 		System.out.println(successfullyPlayedCombo);
 	}
 
-	private void playSeeTheFuture() {
-		new domain.game.actions.SeeTheFutureAction().execute(game, game.getPlayerAtIndex(game.getPlayerTurn()), this);
-	}
 
-	private void playShuffle() {
-		new domain.game.actions.ShuffleAction().execute(game, game.getPlayerAtIndex(game.getPlayerTurn()), this);
-	}
+
+
 
 	private void playSkip(boolean superSkip) {
 		final String decidedSkip = messages.getString("decidedSkip");
@@ -1170,7 +1167,7 @@ public class GameUI implements domain.game.InputProvider {
 			if (checkIfPlayerIsCursed(player) && checkMatchingCardType(cardType,
 					CardType.EXPLODING_KITTEN)) {
 				player.removeCardFromHand(cardIndex);
-				playExplodingKitten(playerIndex);
+				new ExplodingKittenAction().execute(game, game.getPlayerAtIndex(playerIndex), this);
 				continue;
 			}
 
@@ -1181,7 +1178,7 @@ public class GameUI implements domain.game.InputProvider {
 					int explodingKittenIdx = game.getIndexOfCardFromHand
 							(playerIndex, CardType.EXPLODING_KITTEN);
 					player.removeCardFromHand(explodingKittenIdx);
-					playExplodingKitten(playerIndex);
+					new ExplodingKittenAction().execute(game, game.getPlayerAtIndex(playerIndex), this);
 					continue;
 				}
 			}
@@ -1399,7 +1396,7 @@ public class GameUI implements domain.game.InputProvider {
 					System.out.println(newBottomCardMessage);
 					break;
 				case SHUFFLE:
-					playShuffle();
+					new ShuffleAction().execute(game, game.getPlayerAtIndex(game.getPlayerTurn()), this);
 					break;
 				case SKIP:
 					playSkip(false);
@@ -1429,7 +1426,7 @@ public class GameUI implements domain.game.InputProvider {
 					playReverse();
 					return;
 				case SEE_THE_FUTURE:
-					playSeeTheFuture();
+					new SeeTheFutureAction().execute(game, game.getPlayerAtIndex(game.getPlayerTurn()), this);
 					break;
 				case GARBAGE_COLLECTION:
 					playGarbageCollection();

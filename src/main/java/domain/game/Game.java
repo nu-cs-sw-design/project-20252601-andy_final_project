@@ -133,19 +133,7 @@ public class Game {
 		attacked = true;
 	}
 
-	public boolean playExplodingKitten(int playerIndex) {
-		if (checkUserOutOfBounds(playerIndex)) {
-			throw new UnsupportedOperationException(INVALID_PLAYER_INDEX_EXCEPTION);
-		}
-		if (checkIfPlayerHasCard(playerIndex, CardType.DEFUSE)) {
-			return false;
-		}
-		players[playerIndex].setIsDead();
-		if (playerIndex == currentPlayerTurn) {
-			setCurrentPlayerNumberOfTurns(0);
-		}
-		return true;
-	}
+
 
 	public void playImplodingKitten() {
 		setCurrentPlayerNumberOfTurns(0);

@@ -2,7 +2,9 @@ package domain.game;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
+
+import domain.game.actions.ExplodingKittenAction;
+import org.easymock.EasyMock;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -17,11 +19,13 @@ public class DefuseExplodingKittenIntegrationTesting {
 	Player playerOne;
 	Player playerTwo;
 	Player playerThree;
+	InputProvider input;
 
 	@Given("a game with {int} players with current player at index {int}")
 	public void a_game_with_players_with_current_player_at_index(
 			Integer numPlayers, Integer playerIdx) {
 		instantiator = new Instantiator();
+		input = EasyMock.createNiceMock(InputProvider.class);
 
 		final int maxDeckSize = 42;
 
@@ -63,16 +67,12 @@ public class DefuseExplodingKittenIntegrationTesting {
 	public void the_player_has_a_defuse_card() {
 		int currentPlayerTurn = game.getPlayerTurn();
 		Card defuseCard = instantiator.createCard(CardType.DEFUSE);
+		Player currentPlayer = game.getPlayerAtIndex(currentPlayerTurn);
 		game.addCardToHand(defuseCard);
-		game.playExplodingKitten(currentPlayerTurn);
+		
+		new ExplodingKittenAction().execute(game, currentPlayer, input);
 	}
-
-	@When("the player plays a defuse card wanting to insert the exploding kitten at {int}")
-	public void the_player_plays_a_defuse_card_wanting_to_insert_the_exploding_kitten_at_index
-			(Integer index) {
-		int currentPlayerTurn = game.getPlayerTurn();
-		game.playDefuse(index, currentPlayerTurn);
-	}
+	
 
 	@Then("the player inserts the exploding kitten card into deck at {int}")
 	public void current_player_inserts_the_exploding_kitten_card_into_deck_at_index
