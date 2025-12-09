@@ -16,7 +16,6 @@ public abstract class BaseCardAction implements CardAction {
                 continue;
             }
             if (game.checkIfPlayerHasCard(i, CardType.NOPE)) {
-                input.displayMessage("playerHasNopeCard", i);
                 boolean wantsToPlay = input.askPlayerToPlayNope(i);
                 if (wantsToPlay) {
                     new NopeAction().execute(game, game.getPlayerAtIndex(i), input);

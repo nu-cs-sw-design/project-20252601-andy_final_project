@@ -1337,7 +1337,9 @@ public class GameUI implements domain.game.InputProvider {
 			}
 
 			if (checkIfDifferentCardType(cardType, CardType.EXPLODING_KITTEN)
-					&& checkIfDifferentCardType(cardType, CardType.DEFUSE)) {
+					&& checkIfDifferentCardType(cardType, CardType.DEFUSE)
+					&& checkIfDifferentCardType(cardType, CardType.SHUFFLE)
+					&& checkIfDifferentCardType(cardType, CardType.SEE_THE_FUTURE)) {
 				if (checkAllPlayersNope()) {
 					continue;
 				}
@@ -1507,16 +1509,8 @@ public class GameUI implements domain.game.InputProvider {
 		return game.getNumberOfPlayers();
 	}
 
-	private boolean checkExplodingKitten(int playerIndex) {
-		final String invalidPlayerIndexExplodingKitten = messages.
-				getString("invalidPlayerIndexExplodingKitten");
-		boolean isPlayerExploded = false;
-		try {
-			isPlayerExploded = game.playExplodingKitten(playerIndex);
-		} catch (UnsupportedOperationException e) {
-			System.out.println(invalidPlayerIndexExplodingKitten);
-		}
-		return isPlayerExploded;
+	private boolean checkIfPlayerIsAlive(int userIndex) {
+		return !game.checkIfPlayerDead(userIndex);
 	}
 
 	private boolean checkIfNumberOfTurnsGreaterThanZero() {
@@ -1664,10 +1658,6 @@ public class GameUI implements domain.game.InputProvider {
 		} catch (NumberFormatException e) {
 			return -1;
 		}
-	}
-
-	private boolean checkIfPlayerIsAlive(int userIndex) {
-		return !game.checkIfPlayerDead(userIndex);
 	}
 
 	@Override
